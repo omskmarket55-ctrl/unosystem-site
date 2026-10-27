@@ -1,0 +1,9 @@
+# Домены Uno System на входном Caddy: здесь HTTPS и сертификаты, файлы отдаёт контейнер unosystem-web.
+# Если вход — Caddy другого проекта, install.sh вписывает этот текст в его Caddyfile между метками.
+unosystem.ru, pulse.unosystem.ru {
+	reverse_proxy unosystem-web:80
+}
+
+www.unosystem.ru {
+	redir https://unosystem.ru{uri} permanent
+}

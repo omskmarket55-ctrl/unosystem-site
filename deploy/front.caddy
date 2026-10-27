@@ -1,0 +1,6 @@
+# Собственный входной Caddy (контейнер unosystem-proxy) — когда порт 443 на сервере никто не занимает.
+{
+	email info@unosystem.ru
+}
+
+import /etc/unosystem/sites.caddy

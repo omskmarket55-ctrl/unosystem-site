@@ -7,7 +7,7 @@
 
 - `public/` — сайт unosystem.ru (`index.html`, `assets/css`, `assets/js`, `assets/fonts`, `assets/img`, иконки, `og-image.png`).
 - `pulse-soon/` — временная страница pulse.unosystem.ru, пока Пульс КЦ не запущен.
-- `deploy/unosystem.caddy` — настройки Caddy для unosystem.ru, www.unosystem.ru и pulse.unosystem.ru.
+- `deploy/web.caddy`, `deploy/sites.caddy`, `deploy/front.caddy` — настройки Caddy (подробнее — ниже).
 - `deploy/install.sh` — установка на сервер.
 - `deploy/update.sh` — обновление файлов сайта из `main`.
 
@@ -16,24 +16,27 @@
 
 ## Сервер
 
-Сайт живёт на сервере рядом с другими сайтами и не мешает им: использует тот же Caddy,
-добавляя в его Caddyfile одну строку `import /etc/caddy/unosystem.caddy`.
+Сайт живёт на сервере рядом с другими проектами и не мешает им.
 
-Первая установка — от root на сервере:
+- `deploy/web.caddy` — контейнер `unosystem-web` (образ `caddy:2-alpine`): отдаёт файлы из `/srv/unosystem`
+  по HTTP внутри сети Docker `unosystem`, наружу портов не открывает.
+- `deploy/sites.caddy` — наши домены на входном Caddy: HTTPS и `reverse_proxy unosystem-web:80`.
+- Входной Caddy — тот, что уже держит порт 443. Сейчас это контейнер CRMUNO: `install.sh` дописывает
+  `sites.caddy` в его Caddyfile между метками `# >>> unosystem.ru` и `# <<< unosystem.ru`, подключает контейнер
+  к сети `unosystem`, проверяет конфиг (`caddy validate`) и мягко перезагружает его. Чужой контейнер
+  не перезапускается; если проверка не прошла, Caddyfile возвращается из копии.
+- Если порт 443 свободен (например, CRMUNO убрали с сервера), `install.sh` запускает свой входной Caddy —
+  контейнер `unosystem-proxy` с `deploy/front.caddy`.
+
+Установка и повторный запуск (после смены `deploy/*.caddy` или входа) — от root на сервере:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/omskmarket55-ctrl/unosystem-site/main/deploy/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/omskmarket55-ctrl/unosystem-site/main/deploy/install.sh | sudo bash
 ```
 
-Скрипт:
-
-1. проверяет, что порт 443 держит Caddy как служба systemd (иначе останавливается, ничего не меняя);
-2. скачивает репозиторий в `/opt/unosystem-site` и раскладывает файлы в `/var/www/unosystem` и `/var/www/pulse-soon`;
-3. кладёт `/etc/caddy/unosystem.caddy`, добавляет строку `import`, проверяет конфиг (`caddy validate`)
-   и мягко перезагружает Caddy; если проверка не прошла — возвращает Caddyfile из резервной копии;
-4. включает таймер `unosystem-site-update.timer`: раз в 5 минут забирает новую версию из `main`.
-
-Таймер обновляет только файлы сайта. Изменения в `deploy/unosystem.caddy` применяются повторным запуском `install.sh`.
+Таймер `unosystem-site-update.timer` раз в 5 минут забирает новую версию из `main` и подменяет файлы
+в `/srv/unosystem` — только файлы сайта, конфиги Caddy он не трогает. Ещё он подключает входной Caddy обратно
+к сети `unosystem`, если его контейнер пересоздали.
 
 Полезное на сервере:
 
@@ -41,7 +44,11 @@ curl -fsSL https://raw.githubusercontent.com/omskmarket55-ctrl/unosystem-site/ma
 systemctl list-timers unosystem-site-update.timer   # когда следующая проверка
 journalctl -u unosystem-site-update -n 20           # журнал обновлений
 unosystem-site-update --force                       # обновить сейчас
+docker logs unosystem-web                           # журнал контейнера с сайтом
 ```
+
+Убрать сайт с общего входа: удалить блок между метками в Caddyfile входного Caddy и выполнить в его контейнере
+`caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile`.
 
 ## Локально
 
