@@ -1,0 +1,38 @@
+# Uno System: главная, www и временная страница Пульса.
+# Подключается в общий Caddyfile одной строкой: import /etc/caddy/unosystem.caddy
+# Остальные сайты на сервере этот файл не затрагивает.
+
+unosystem.ru {
+	root * /var/www/unosystem
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+	}
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=604800"
+	@pages path / /index.html /404.html
+	header @pages Cache-Control "no-cache"
+	file_server
+
+	handle_errors {
+		@missing expression {err.status_code} == 404
+		handle @missing {
+			rewrite * /404.html
+			file_server
+		}
+	}
+}
+
+www.unosystem.ru {
+	redir https://unosystem.ru{uri} permanent
+}
+
+# Пока Пульс КЦ не запущен — страница «скоро запуск». При запуске блок заменит reverse_proxy на приложение.
+pulse.unosystem.ru {
+	root * /var/www/pulse-soon
+	encode zstd gzip
+	file_server
+}
