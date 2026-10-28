@@ -8,6 +8,7 @@
 - `public/` — сайт unosystem.ru (`index.html`, `assets/css`, `assets/js`, `assets/fonts`, `assets/img`, иконки, `og-image.png`).
 - `pulse-soon/` — временная страница pulse.unosystem.ru, пока Пульс КЦ не запущен.
 - `deploy/web.caddy`, `deploy/sites.caddy`, `deploy/front.caddy` — настройки Caddy (подробнее — ниже).
+- `deploy/pulse-bootstrap.sh` — первичная загрузка Пульс КЦ (закрытый репозиторий pulse-kc) по ключу развёртывания.
 - `deploy/install.sh` — установка на сервер.
 - `deploy/update.sh` — обновление файлов сайта из `main`.
 
@@ -49,6 +50,17 @@ docker logs unosystem-web                           # журнал контей�
 
 Убрать сайт с общего входа: удалить блок между метками в Caddyfile входного Caddy и выполнить в его контейнере
 `caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile`.
+
+## Пульс КЦ на этом же сервере
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/omskmarket55-ctrl/unosystem-site/main/deploy/pulse-bootstrap.sh | sudo bash
+```
+
+Первый запуск создаёт ключ развёртывания и показывает его — ключ добавляется в GitHub
+(pulse-kc → Settings → Deploy keys, только чтение), затем команда запускается ещё раз. Дальше установку ведёт
+`pulse-kc/deploy/install.sh`: приложение и PostgreSQL в Docker, `pulse.unosystem.ru` → `pulse-app:3000`.
+Пока приложение не отвечает, на `pulse.unosystem.ru` показывается страница «скоро запуск» из `pulse-soon/`.
 
 ## Локально
 

@@ -1,9 +1,21 @@
-# Домены Uno System на входном Caddy: здесь HTTPS и сертификаты, файлы отдаёт контейнер unosystem-web.
+# Домены Uno System на входном Caddy: здесь HTTPS и сертификаты.
 # Если вход — Caddy другого проекта, install.sh вписывает этот текст в его Caddyfile между метками.
-unosystem.ru, pulse.unosystem.ru {
+unosystem.ru {
 	reverse_proxy unosystem-web:80
 }
 
 www.unosystem.ru {
 	redir https://unosystem.ru{uri} permanent
+}
+
+# Пульс КЦ (контейнер pulse-app из репозитория pulse-kc). Пока он не запущен или перезапускается,
+# отвечает unosystem-web со страницей «скоро запуск». Приложение открывается внутри Битрикс24 —
+# заголовков, запрещающих iframe, здесь нет; поток обновлений (SSE) не буферизуется.
+pulse.unosystem.ru {
+	reverse_proxy pulse-app:3000 unosystem-web:80 {
+		lb_policy first
+		lb_try_duration 3s
+		fail_duration 10s
+		flush_interval -1
+	}
 }
