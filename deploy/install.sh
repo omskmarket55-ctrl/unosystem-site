@@ -19,7 +19,7 @@ IMAGE=caddy:2-alpine
 UPDATER=/usr/local/sbin/unosystem-site-update
 MARK_BEGIN='# >>> unosystem.ru — этот блок ведёт /opt/unosystem-site/deploy/install.sh, вручную не править'
 MARK_END='# <<< unosystem.ru'
-HOSTS_RE='(^|[[:space:],/])(www\.|pulse\.)?unosystem\.ru([[:space:],:{]|$)'
+HOSTS_RE='(^|[[:space:],/])(www\.|pulse\.|okk\.)?unosystem\.ru([[:space:],:{]|$)'
 
 log() { printf '\033[1;34m▸\033[0m %s\n' "$*"; }
 ok() { printf '\033[1;32m✓\033[0m %s\n' "$*"; }
@@ -168,7 +168,7 @@ UNIT
   # 6. Проверка: сертификаты Let's Encrypt выпускаются за несколько секунд, DNS уже указывает на сервер
   log "Проверяю HTTPS"
   local host code
-  for host in unosystem.ru www.unosystem.ru pulse.unosystem.ru; do
+  for host in unosystem.ru www.unosystem.ru pulse.unosystem.ru okk.unosystem.ru; do
     code=000
     for _ in $(seq 1 20); do
       code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "https://$host/" || true)
