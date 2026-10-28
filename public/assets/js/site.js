@@ -14,6 +14,24 @@
     items.forEach((el) => el.classList.add('is-in'));
   }
 
+  // Пауза анимации: выбор запоминается (в <head> он применяется до отрисовки)
+  const root = document.documentElement;
+  const toggle = document.querySelector('.motion-toggle');
+  if (toggle) {
+    const render = () => {
+      const label = root.classList.contains('no-motion') ? 'Включить анимацию' : 'Остановить анимацию';
+      toggle.setAttribute('aria-label', label);
+      toggle.title = label;
+    };
+    toggle.addEventListener('click', () => {
+      const off = root.classList.toggle('no-motion');
+      try { localStorage.setItem('uno-motion', off ? 'off' : 'on'); } catch (e) { /* приватный режим — не запоминаем */ }
+      render();
+    });
+    render();
+    toggle.hidden = false;
+  }
+
   // Пятно света следует за курсором внутри плитки
   for (const tile of document.querySelectorAll('a.tile')) {
     tile.addEventListener('pointermove', (e) => {

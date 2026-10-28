@@ -71,7 +71,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* Первый экран */
-.hero { display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding: 56px 0 72px; }
+.hero { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding: 56px 0 72px; }
 .hero-text { flex: 1 1 520px; display: flex; flex-direction: column; gap: 28px; min-width: 0; }
 .pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text-3); border: 1px solid rgba(255, 255, 255, .12); background: rgba(255, 255, 255, .03); padding: 8px 14px; border-radius: 99px; }
 .live-dot { width: 7px; height: 7px; border-radius: 99px; background: var(--blue); box-shadow: 0 0 10px rgba(47, 123, 255, .8); }
@@ -148,10 +148,12 @@ a.tile:hover .tile-logo img { transform: scale(1.05); }
 
 .footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding: 40px 0 48px; font-size: 14px; color: #6B7390; }
 
-/* Движение: включается, только если пользователь не просил его убрать */
+/* Движение. Идёт у всех; если в системе включено «уменьшение движения» — медленнее и без смещений.
+   Кнопка у орбиты ставит паузу: класс .no-motion на <html>, выбор запоминается в браузере. */
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes spin-rev { to { transform: rotate(-360deg); } }
 @keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.98); } }
+@keyframes fade { from { opacity: 0; } }
 @keyframes drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(60px, -40px); } }
 @keyframes drift-2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-70px, 30px); } }
 @keyframes shimmer { to { background-position: 200% center; } }
@@ -159,25 +161,41 @@ a.tile:hover .tile-logo img { transform: scale(1.05); }
 @keyframes breathe { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 
-@media (prefers-reduced-motion: no-preference) {
-  .ring-outer { animation: spin 48s linear infinite; }
-  .ring-outer .sat-body { animation: spin-rev 48s linear infinite; }
-  .ring-inner { animation: spin-rev 30s linear infinite; }
-  .ring-inner .sat-body { animation: spin 30s linear infinite; }
-  .orb-a { animation: drift 22s ease-in-out infinite; }
-  .orb-b { animation: drift-2 26s ease-in-out infinite; }
-  .shimmer { animation: shimmer 6s linear infinite; }
-  .marquee-track { animation: marquee 38s linear infinite; }
-  .core-glow, .next-plus { animation: breathe 5s ease-in-out infinite; }
-  .live-dot { animation: blink 2.4s ease-in-out infinite; }
-  .js .reveal { opacity: 0; }
-  .js .reveal.is-in { opacity: 1; animation: rise .9s var(--ease) backwards; animation-delay: var(--d, 0ms); }
-  .bento > :nth-child(2) { --d: 100ms; }
-  .bento > :nth-child(3) { --d: 200ms; }
-  .bento > :nth-child(4) { --d: 300ms; }
-  .bento > :nth-child(5) { --d: 400ms; }
-  .orbit-box.reveal { --d: 150ms; }
+.ring-outer { animation: spin 48s linear infinite; }
+.ring-outer .sat-body { animation: spin-rev 48s linear infinite; }
+.ring-inner { animation: spin-rev 30s linear infinite; }
+.ring-inner .sat-body { animation: spin 30s linear infinite; }
+.orb-a { animation: drift 22s ease-in-out infinite; }
+.orb-b { animation: drift-2 26s ease-in-out infinite; }
+.shimmer { animation: shimmer 6s linear infinite; }
+.marquee-track { animation: marquee 38s linear infinite; }
+.core-glow, .next-plus { animation: breathe 5s ease-in-out infinite; }
+.live-dot { animation: blink 2.4s ease-in-out infinite; }
+.js .reveal { opacity: 0; }
+.js .reveal.is-in { opacity: 1; animation: rise .9s var(--ease) backwards; animation-delay: var(--d, 0ms); }
+.bento > :nth-child(2) { --d: 100ms; }
+.bento > :nth-child(3) { --d: 200ms; }
+.bento > :nth-child(4) { --d: 300ms; }
+.bento > :nth-child(5) { --d: 400ms; }
+.orbit-box.reveal { --d: 150ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-outer, .ring-outer .sat-body { animation-duration: 96s; }
+  .ring-inner, .ring-inner .sat-body { animation-duration: 60s; }
+  .marquee-track { animation-duration: 76s; }
+  .orb-a, .orb-b { animation: none; }
+  .js .reveal.is-in { animation-name: fade; }
+  a.tile:hover { transform: none; }
 }
+
+.no-motion *, .no-motion *::before, .no-motion *::after { animation: none !important; }
+
+.motion-toggle { position: absolute; right: 0; bottom: 24px; width: 44px; height: 44px; border-radius: 99px; border: 1px solid var(--line-2); background: rgba(255, 255, 255, .03); color: var(--fog); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: color .2s, border-color .2s; }
+.motion-toggle:hover { color: var(--ice); border-color: rgba(143, 192, 255, .5); }
+.motion-toggle:focus-visible { outline: 2px solid var(--glint); outline-offset: 3px; }
+.motion-toggle[hidden] { display: none; }
+.motion-toggle .i-play, .no-motion .motion-toggle .i-pause { display: none; }
+.no-motion .motion-toggle .i-play { display: block; }
 
 /* Планшеты и телефоны */
 @media (max-width: 900px) {
