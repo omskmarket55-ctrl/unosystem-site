@@ -19,3 +19,10 @@ pulse.unosystem.ru {
 		flush_interval -1
 	}
 }
+
+# Кабинет ОКК (контейнер okk-app из репозитория okk): рабочее место сотрудников контроля качества.
+# Заголовки безопасности и запрет iframe задаёт само приложение.
+okk.unosystem.ru {
+	encode zstd gzip
+	reverse_proxy okk-app:3000
+}
