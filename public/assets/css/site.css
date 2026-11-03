@@ -148,6 +148,30 @@ a.tile:hover .tile-logo img { transform: scale(1.05); }
 
 .footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding: 40px 0 48px; font-size: 14px; color: #6B7390; }
 
+/* Страницы продукта и документы: /pulse/, /pulse/offer/, /pulse/privacy/ */
+.doc { max-width: 860px; padding: 24px 0 64px; }
+.doc h1 { font-size: clamp(32px, 4vw, 52px); line-height: 1.08; letter-spacing: -.02em; margin: 0 0 16px; }
+.doc h2 { font-size: 24px; letter-spacing: -.01em; margin: 40px 0 12px; }
+.doc h3 { font-size: 18px; margin: 28px 0 8px; }
+.doc p, .doc li { font-size: 16px; line-height: 1.7; color: var(--text-3); }
+.doc ol, .doc ul { padding-left: 22px; }
+.doc li { margin: 4px 0; }
+.doc a { color: var(--glint); text-decoration: underline; text-underline-offset: 3px; }
+.doc .meta { font-size: 14px; color: var(--fog); }
+.doc .lead { margin-bottom: 28px; }
+.doc table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
+.doc th, .doc td { text-align: left; padding: 10px 12px; border-top: 1px solid var(--line); color: var(--text-3); vertical-align: top; }
+.doc th { color: var(--fog); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }
+.tariffs { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin: 20px 0 8px; }
+.tariff { padding: 26px; border-radius: 24px; background: #0A0E19; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.tariff b { font-family: var(--font-display); font-size: 20px; }
+.tariff .price { font-size: 34px; font-weight: 800; letter-spacing: -.02em; color: var(--ice); }
+.tariff .price small { font-size: 15px; font-weight: 600; color: var(--fog); }
+.tariff span { color: var(--text-2); font-size: 15px; }
+.doc .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.doc .btn { text-decoration: none; }
+.doc .btn-light { color: var(--night); }
+
 /* Движение. Идёт у всех; если в системе включено «уменьшение движения» — медленнее и без смещений.
    Кнопка у орбиты ставит паузу: класс .no-motion на <html>, выбор запоминается в браузере. */
 @keyframes spin { to { transform: rotate(360deg); } }
